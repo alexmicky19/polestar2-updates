@@ -85,6 +85,7 @@
   .card summary::-webkit-details-marker{display:none}
   .ver{font-size:17px;font-weight:600;letter-spacing:-.01em}
   .ver .p{color:var(--muted);font-weight:400}
+  .ver .seen{display:block;font-size:11.5px;font-weight:400;color:var(--muted);letter-spacing:0;margin-top:3px}
   .tags{display:flex;gap:8px;align-items:center}
   .pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
   .pill.latest{background:var(--gold-soft);color:var(--gold)}
@@ -201,6 +202,12 @@ function noteHtml(notes){
 function escapeHtml(s){
   return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
 }
+function fmtDate(iso){
+  const m = /^(\d{4})-(\d{2})-(\d{2})$/.exec(iso);
+  if(!m) return escapeHtml(iso);
+  const months=['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+  return (+m[3])+' '+months[(+m[2])-1]+' '+m[1];
+}
 
 function render(list){
   tl.innerHTML='';
@@ -209,13 +216,16 @@ function render(list){
   list.forEach((v,i)=>{
     const isLatest = (v===versions[0]);
     const noteCount = v.notes.filter(n=>!n.startsWith('### ')).length;
+    const seen = v.first_seen ? fmtDate(v.first_seen) : '';
     const entry = document.createElement('div');
     entry.className = 'entry'+(isLatest?' latest':'');
     entry.id = v.version.replace(/\./g,'-');
     entry.innerHTML =
       '<details class="card"'+(isLatest?' open':'')+'>'+
         '<summary>'+
-          '<span class="ver"><span class="p">P</span>'+escapeHtml(v.version.replace(/^P/i,''))+'</span>'+
+          '<span class="ver"><span class="p">P</span>'+escapeHtml(v.version.replace(/^P/i,''))+
+            (seen?'<span class="seen">First seen '+seen+'</span>':'')+
+          '</span>'+
           '<span class="tags">'+
             (isLatest?'<span class="pill latest">Latest</span>':'')+
             '<span class="pill count">'+noteCount+' change'+(noteCount===1?'':'s')+'</span>'+
