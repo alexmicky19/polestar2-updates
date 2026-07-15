@@ -28,9 +28,24 @@ releases" or predict the next update.
 
 ## Updating the data
 
-The version data is currently baked into `index.html`. To refresh after a new
-release, re-capture the version list from the manual page and update the `DATA`
-array near the bottom of `index.html`.
+The version data is embedded in `index.html` (the `DATA` array) and mirrored in
+`data.json` for reference. A GitHub Action refreshes it automatically:
+
+- **`.github/workflows/update-data.yml`** runs `scripts/scrape.py` every Monday
+  (and on-demand via the Actions tab → *Update Polestar 2 software data* →
+  *Run workflow*).
+- The scraper fetches the manual page, parses the embedded release-notes data,
+  regenerates `index.html` + `data.json`, and commits only if something changed.
+  GitHub Pages then redeploys automatically.
+
+To refresh manually on your machine:
+
+```sh
+python3 scripts/scrape.py        # fetches live + rewrites index.html
+python3 scripts/scrape.py --local path/to/saved.html   # parse a saved copy (for testing)
+```
+
+The scraper uses only the Python standard library — no dependencies to install.
 
 ## License
 

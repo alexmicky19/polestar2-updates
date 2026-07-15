@@ -1,0 +1,40 @@
+name: Update Polestar 2 software data
+
+on:
+  schedule:
+    # Weekly, Mondays 07:13 UTC (off-peak minute to avoid the top-of-hour rush).
+    - cron: "13 7 * * 1"
+  workflow_dispatch: {}   # allow manual runs from the Actions tab
+
+permissions:
+  contents: write
+
+concurrency:
+  group: update-data
+  cancel-in-progress: false
+
+jobs:
+  scrape:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+
+      - name: Scrape manual and regenerate index.html
+        run: python3 scripts/scrape.py
+
+      - name: Commit changes if any
+        run: |
+          if [[ -z "$(git status --porcelain)" ]]; then
+            echo "No changes — Polestar 2 data is up to date."
+            exit 0
+          fi
+          git config user.name  "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add index.html data.json
+          latest=$(python3 -c "import json;print(json.load(open('data.json'))[0]['version'])")
+          git commit -m "chore: update Polestar 2 software data (latest ${latest})"
+          git push
