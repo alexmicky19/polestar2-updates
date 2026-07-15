@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Polestar 2 Software Updates — Unofficial Tracker</title>
+<meta name="description" content="Tracking Polestar 2 software updates: every released version and its official release notes, sourced from Polestar's owner's manual.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#f3f3f1; --card:#ffffff; --ink:#141414; --muted:#6c6c6a;
+    --line:#e5e5e1; --line-strong:#d8d8d3;
+    --gold:#b08d4f; --gold-soft:#f0e7d6;
+    --ok:#3c7d57; --ok-soft:#e2efe7;
+    --radius:14px;
+    --font:'Inter',-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html{-webkit-text-size-adjust:100%}
+  body{
+    font-family:var(--font); background:var(--bg); color:var(--ink);
+    line-height:1.55; font-weight:400; -webkit-font-smoothing:antialiased;
+    padding:clamp(20px,5vw,56px) 20px 64px;
+  }
+  .wrap{max-width:860px;margin:0 auto}
+  a{color:inherit}
+
+  header.site{margin-bottom:40px}
+  .eyebrow{font-size:12px;letter-spacing:.18em;text-transform:uppercase;color:var(--gold);font-weight:600;margin-bottom:14px}
+  h1{font-size:clamp(30px,6vw,48px);font-weight:300;letter-spacing:-.02em;line-height:1.05}
+  h1 b{font-weight:600}
+  .lede{margin-top:14px;color:var(--muted);font-size:15px;max-width:64ch}
+  .lede a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-strong)}
+  .lede a:hover{border-color:var(--ink)}
+
+  .banner{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:clamp(22px,4vw,34px);margin:36px 0 16px;
+    display:flex;flex-wrap:wrap;gap:24px;align-items:center;justify-content:space-between;
+  }
+  .banner .label{font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--muted);margin-bottom:8px}
+  .banner .date{font-size:clamp(26px,5vw,40px);font-weight:300;letter-spacing:-.01em}
+  .banner .sub{color:var(--muted);font-size:14px;margin-top:10px;max-width:52ch}
+  .badge{display:inline-flex;align-items:center;gap:10px;border-radius:100px;padding:14px 24px;font-size:16px;font-weight:600;letter-spacing:.02em;white-space:nowrap;background:var(--ok-soft);color:var(--ok)}
+  .badge .dot{width:10px;height:10px;border-radius:50%;background:var(--ok)}
+
+  .note-box{background:var(--gold-soft);border:1px solid #e7d9bd;border-radius:var(--radius);padding:16px 18px;margin-bottom:36px;font-size:13.5px;color:#6a5427}
+  .note-box b{color:#5a4620}
+
+  .stats{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-bottom:48px}
+  .stat{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:20px 18px}
+  .stat .k{font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--muted);margin-bottom:10px}
+  .stat .v{font-size:30px;font-weight:300;letter-spacing:-.01em;line-height:1}
+  .stat .v small{font-size:14px;color:var(--muted);font-weight:400}
+
+  .sec-h{display:flex;align-items:baseline;justify-content:space-between;margin:0 2px 22px;gap:12px}
+  .sec-h h2{font-size:13px;letter-spacing:.14em;text-transform:uppercase;font-weight:600;color:var(--ink)}
+  .sec-h .note{font-size:12px;color:var(--muted)}
+
+  .toolbar{display:flex;gap:10px;margin:0 2px 22px;flex-wrap:wrap}
+  .toolbar input{
+    flex:1;min-width:200px;font-family:var(--font);font-size:14px;color:var(--ink);
+    background:var(--card);border:1px solid var(--line-strong);border-radius:100px;padding:11px 18px;
+  }
+  .toolbar input:focus{outline:none;border-color:var(--gold)}
+  .toolbar button{
+    font-family:var(--font);font-size:13px;color:var(--muted);background:var(--card);
+    border:1px solid var(--line-strong);border-radius:100px;padding:11px 20px;cursor:pointer;
+  }
+  .toolbar button:hover{border-color:var(--ink);color:var(--ink)}
+
+  .timeline{position:relative;margin-left:7px;padding-left:28px;border-left:1px solid var(--line-strong)}
+  .entry{position:relative;padding-bottom:26px}
+  .entry:last-child{padding-bottom:0}
+  .entry::before{
+    content:"";position:absolute;left:-35px;top:6px;width:13px;height:13px;border-radius:50%;
+    background:var(--card);border:2px solid var(--line-strong);
+  }
+  .entry.latest::before{border-color:var(--gold);background:var(--gold)}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden}
+  .card summary{list-style:none;cursor:pointer;padding:16px 18px;display:flex;align-items:center;justify-content:space-between;gap:14px}
+  .card summary::-webkit-details-marker{display:none}
+  .ver{font-size:17px;font-weight:600;letter-spacing:-.01em}
+  .ver .p{color:var(--muted);font-weight:400}
+  .tags{display:flex;gap:8px;align-items:center}
+  .pill{display:inline-block;padding:3px 10px;border-radius:100px;font-size:11px;font-weight:600;letter-spacing:.05em;text-transform:uppercase}
+  .pill.latest{background:var(--gold-soft);color:var(--gold)}
+  .pill.count{background:#eef0ef;color:var(--muted)}
+  .chev{color:var(--muted);transition:transform .18s ease;font-size:13px}
+  details[open] .chev{transform:rotate(90deg)}
+  .body{padding:0 18px 18px;border-top:1px solid var(--line)}
+  .body ul{list-style:none;margin-top:14px}
+  .body li{position:relative;padding:7px 0 7px 18px;font-size:14.5px;border-bottom:1px solid var(--line)}
+  .body li:last-child{border-bottom:0}
+  .body li::before{content:"";position:absolute;left:0;top:15px;width:5px;height:5px;border-radius:50%;background:var(--line-strong)}
+  .body li.sub{padding-left:0;font-weight:600;font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);border-bottom:0;margin-top:8px}
+  .body li.sub::before{display:none}
+
+  footer{margin-top:56px;padding-top:26px;border-top:1px solid var(--line);font-size:12.5px;color:var(--muted);line-height:1.7}
+  footer a{color:var(--ink);text-decoration:none;border-bottom:1px solid var(--line-strong)}
+  .empty{color:var(--muted);font-size:14px;padding:20px 2px}
+
+  @media(max-width:560px){.stats{grid-template-columns:1fr}}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header class="site">
+    <div class="eyebrow">Unofficial Tracker</div>
+    <h1>Polestar <b>2</b> Software Updates</h1>
+    <p class="lede">Every released software version for the Polestar&nbsp;2 and its official release notes, taken from
+      <a href="https://www.polestar.com/uk/manual/polestar-2/2027/software-updates/" target="_blank" rel="noopener">Polestar's owner's manual</a>.
+      Not affiliated with Polestar. Notes are aggregated across model years — some items apply only to certain build weeks.</p>
+  </header>
+
+  <div class="banner">
+    <div>
+      <div class="label">Latest released version</div>
+      <div class="date" id="latestVer">—</div>
+      <div class="sub">This is the newest version documented in Polestar's manual. It is delivered Over-the-Air (OTA) or at a workshop, and rolls out gradually by market and model year.</div>
+    </div>
+    <div class="badge"><span class="dot"></span><span id="latestBadge">Current</span></div>
+  </div>
+
+  <div class="note-box">
+    <b>About dates:</b> Unlike some newer Polestar models, Polestar does <b>not</b> publish release dates for Polestar&nbsp;2 software in the manual — only version numbers and notes. So this tracker shows the full version history and changelog, but cannot show "days between releases" or a predicted next-update date.
+  </div>
+
+  <div class="stats">
+    <div class="stat"><div class="k">Tracked versions</div><div class="v" id="statCount">—</div></div>
+    <div class="stat"><div class="k">Latest version</div><div class="v" id="statLatest">—</div></div>
+    <div class="stat"><div class="k">Oldest tracked</div><div class="v" id="statOldest">—</div></div>
+  </div>
+
+  <div class="sec-h">
+    <h2>Release history</h2>
+    <span class="note">newest first</span>
+  </div>
+
+  <div class="toolbar">
+    <input id="search" type="search" placeholder="Search versions and notes…" autocomplete="off">
+    <button id="expandAll" type="button">Expand all</button>
+    <button id="collapseAll" type="button">Collapse all</button>
+  </div>
+
+  <div class="timeline" id="timeline"></div>
+  <div class="empty" id="empty" style="display:none">No versions match your search.</div>
+
+  <footer>
+    Source: <a href="https://www.polestar.com/uk/manual/polestar-2/2027/software-updates/" target="_blank" rel="noopener">Polestar&nbsp;2 owner's manual — Software updates</a> (UK, model year 2027 view, which lists all historical versions).
+    Data captured 2026-07-15. Inspired by the <a href="https://jaybizzle.github.io/polestar4-updates" target="_blank" rel="noopener">Polestar&nbsp;4 updates tracker</a>.
+    This is an unofficial, community-made page and is not endorsed by Polestar. Version notes &copy; Polestar.
+  </footer>
+
+</div>
+
+<script>
+const DATA = [{"version": "P5.1.17", "notes": ["This software update provides minor refinements and general software improvements to Polestar 2, including improvements to the USB connection for Android Auto and Apple CarPlay."]}, {"version": "P5.1.9", "notes": ["This software update is solely a compatibility update for the new model year 2027 of Polestar 2"]}, {"version": "P5.0.10", "notes": ["This software update provides general stability improvements to Polestar 2, including:", "### Improvements valid for model year 2025 or older", "The operating system, Android Automotive OS, is upgraded to Android 13. This includes overall infotainment improvements and performance", "### Improvements valid for model year 2026 or newer", "Plug & Charge is introduced. This functionality automatically authenticates, authorizes, and starts charging at Plug & Charge supported stations without the need for manual payment, using secure communication between the car and charger. Simply find charging stations that support Plug & Charge through Google Maps in the centre display or in the Polestar Charge app.Activation instructions of Plug & Charge are available in the Polestar App and in the car’s centre display in the Charging menu", "Activation instructions of Plug & Charge are available in the Polestar App and in the car’s centre display in the Charging menu", "Improvements to Bluetooth connection and automatic reconnection functionality, including phone book synchronization", "Improvements to Apple CarPlay®, including improved wired connection when connecting an iPhone", "Note: Bluetooth device connections may require re-pairing after successful installation of this software version. Please refer to the owner’s manual or contact Polestar Support if support is needed during this process", "### Bug fixes for model year 2026 or newer", "Bug fix for when sound from the audio system was distorted", "Bug fix for when the maps were not displayed in the DIM or CSD", "### Bug fixes for all Polestar 2 vehicles", "Bug fixes for the rear-view camera", "Bug fix for Range Assistant, including historical data now showing correct consumption figures in 20 km and 40 km viewsWhen French is selected as system language, the Range Assistant also includes a bug fix for when the app closes automaticallyNote: All historical consumption data will be cleared once this software has been installed", "When French is selected as system language, the Range Assistant also includes a bug fix for when the app closes automatically", "Note: All historical consumption data will be cleared once this software has been installed"]}, {"version": "P4.2.13", "notes": ["This software update provides general stability improvements to all Polestar 2 vehicles, including:", "Bug fix for when DC-charging sometimes delivered limited max effect", "Bug fix for when the rear luggage compartment interior light intermittently did not turn on"]}, {"version": "P3.7.0", "notes": ["Compatibility update", "Note: The software content in this update is identical to P3.6.4"]}, {"version": "P3.6.4", "notes": ["Stability improvements to the parking assist camera", "Minor stability improvements"]}, {"version": "P3.5.24", "notes": ["Road Sign Information speed limit detection improvements, including greater accuracy at for example highway exit speed limits.", "Improvements to Lane Keeping Aid.", "iTPMS (Indirect Tyre Pressure Monitoring System) stability improvement.", "Change in logic of parking assist camera to always show reverse camera view when vehicle is placed in reverse. Cars with Split screen view with 360-camera and rear-view camera will show the split screen when the vehicle is placed in reverse.", "General stability improvements"]}, {"version": "P3.5.14", "notes": ["Road Sign Information speed limit detection improvements, including greater accuracy at for example highway exit speed limits.", "Improvements to Lane Keeping Aid.", "iTPMS (Indirect Tyre Pressure Monitoring System) stability improvement."]}, {"version": "P3.4.4", "notes": ["Parking view with split screen introduced, applicable only on cars built from 23w46 onwards.", "ETA - Estimated Time of Arrival in drivers display reinstated.", "Digital key pairing improvements.", "Remote Polestar app functions now available up to 22 days after last use of the vehicle.", "General stability improvements."]}, {"version": "P3.3.16", "notes": ["Enabling Android Auto.", "Improved driving experience at low speed (MY21-23).", "Note: After software installation you may need to store new reference values for the tire pressure monitoring system. Follow the instructions in the owner's manual."]}, {"version": "P3.2.8", "notes": ["Note: The release of this software is only to accommodate a hardware change in production. The SW content in this update is identical to P3.2.4:", "Compatibility update"]}, {"version": "P3.2.4", "notes": ["Stability improvements for Digital Key.", "Improved behaviour for Cruise Control and Adaptive Cruise Control."]}, {"version": "P3.1.10", "notes": ["Stability improvements for vehicle key recognition (only for late MY24 and MY25 vehicles)."]}, {"version": "P3.1.9", "notes": ["Performance improvements in the infotainment system.", "Stability improvements for the cabin climate settings.", "Maps in the driver display will not be visible during an active reverse event."]}, {"version": "P3.1.2", "notes": ["Climate preconditioning now with 10 minutes added to timer to account for users arriving late to the car after planning a departure time.", "General calibration for the climate system.", "Intelligent Speed Assistant icon update (only for European vehicles built from November 2023 onwards)."]}, {"version": "P3.0.3", "notes": ["Note: Software update should not be installed whilst the vehicle is charging, as this will interrupt the charging.", "Please schedule your software update for when charging is complete", "Android Automotive OS 12.", "Enabler for continued Google Automotive Services and 3rd party app development.", "New Messages application, where user can interact with some of the latest received messages directly on the screen, as a complement to the Voice assistant messenger functionality.", "Microphone icon indicating when the microphone is being used in the top bar.", "Steering wheel heater activated automatically with remote climate start below 10°C/50°F ambient temperature (for vehicles built before November 2022).", "Range App improvements: “Medium consumption” added to existing consumption meters.", "If user has not approved Google's Terms of Service, related Google apps will be greyed out. Tapping on greyed out icons will guide user to Google's Terms of Service.", "Off-line support for road sign information for users that have not approved Google’s Terms and conditions.", "“Complete Profile Setup” button now integrated in the center display.", "Improvements to traffic sign recognition for European markets.", "Improvements in Bluetooth connection between car and Apple CarPlay when transferring phone calls."]}];
+const SCRAPED = "2026-07-15";
+
+// version comparison: strip leading P, compare numerically
+function verKey(v){
+  return v.replace(/^P/i,'').split('.').map(n=>parseInt(n,10)||0);
+}
+function cmp(a,b){
+  const x=verKey(a.version), y=verKey(b.version);
+  for(let i=0;i<Math.max(x.length,y.length);i++){
+    const d=(y[i]||0)-(x[i]||0);
+    if(d) return d;
+  }
+  return 0;
+}
+const versions = DATA.slice().sort(cmp); // newest first
+
+// stats
+document.getElementById('statCount').textContent = versions.length;
+document.getElementById('statLatest').textContent = versions[0].version.replace(/^P/i,'');
+document.getElementById('statOldest').textContent = versions[versions.length-1].version.replace(/^P/i,'');
+document.getElementById('latestVer').textContent = versions[0].version;
+document.getElementById('latestBadge').textContent = 'Current';
+
+const tl = document.getElementById('timeline');
+const emptyEl = document.getElementById('empty');
+
+function noteHtml(notes){
+  let html = '<ul>';
+  for(const n of notes){
+    if(n.startsWith('### ')){
+      html += '<li class="sub">'+escapeHtml(n.slice(4))+'</li>';
+    } else {
+      html += '<li>'+escapeHtml(n)+'</li>';
+    }
+  }
+  return html+'</ul>';
+}
+function escapeHtml(s){
+  return s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+}
+
+function render(list){
+  tl.innerHTML='';
+  if(!list.length){ emptyEl.style.display='block'; return; }
+  emptyEl.style.display='none';
+  list.forEach((v,i)=>{
+    const isLatest = (v===versions[0]);
+    const noteCount = v.notes.filter(n=>!n.startsWith('### ')).length;
+    const entry = document.createElement('div');
+    entry.className = 'entry'+(isLatest?' latest':'');
+    entry.innerHTML =
+      '<details class="card"'+(isLatest?' open':'')+'>'+
+        '<summary>'+
+          '<span class="ver"><span class="p">P</span>'+escapeHtml(v.version.replace(/^P/i,''))+'</span>'+
+          '<span class="tags">'+
+            (isLatest?'<span class="pill latest">Latest</span>':'')+
+            '<span class="pill count">'+noteCount+' change'+(noteCount===1?'':'s')+'</span>'+
+            '<span class="chev">&#9654;</span>'+
+          '</span>'+
+        '</summary>'+
+        '<div class="body">'+noteHtml(v.notes)+'</div>'+
+      '</details>';
+    tl.appendChild(entry);
+  });
+}
+render(versions);
+
+// search
+const search = document.getElementById('search');
+search.addEventListener('input', ()=>{
+  const q = search.value.trim().toLowerCase();
+  if(!q){ render(versions); return; }
+  const filtered = versions.filter(v=>
+    v.version.toLowerCase().includes(q) ||
+    v.notes.some(n=>n.toLowerCase().includes(q))
+  );
+  render(filtered);
+});
+document.getElementById('expandAll').addEventListener('click',()=>{
+  tl.querySelectorAll('details').forEach(d=>d.open=true);
+});
+document.getElementById('collapseAll').addEventListener('click',()=>{
+  tl.querySelectorAll('details').forEach(d=>d.open=false);
+});
+</script>
+</body>
+</html>
