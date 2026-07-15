@@ -10,13 +10,18 @@ splice the result into index.html's embedded DATA array.
 
 No browser / heavy deps required — just urllib from the stdlib.
 """
-import json, re, sys, urllib.request, pathlib, html as _html
+import json, re, sys, urllib.request, pathlib, html as _html, datetime
 
 MANUAL_URL = "https://www.polestar.com/uk/manual/polestar-2/2027/software-updates/"
 UA = "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36"
 
+SITE_URL = "https://alexmicky19.github.io/polestar2-updates/"
+FEED_URL = SITE_URL + "feed.xml"
+
 ROOT = pathlib.Path(__file__).resolve().parent.parent
 INDEX = ROOT / "index.html"
+DATA = ROOT / "data.json"
+FEED = ROOT / "feed.xml"
 
 
 def fetch(url: str) -> str:
@@ -137,6 +142,69 @@ def parse_versions(rn: dict) -> list:
     return versions
 
 
+def version_key(v: str):
+    """Sort key: strip leading P, compare numerically (newest first when reversed)."""
+    parts = re.sub(r"^P", "", v, flags=re.I).split(".")
+    return [int(p) if p.isdigit() else 0 for p in parts]
+
+
+def load_first_seen() -> dict:
+    """Read the previously persisted first-seen dates so pubDates stay stable."""
+    if not DATA.exists():
+        return {}
+    try:
+        prev = json.loads(DATA.read_text(encoding="utf-8"))
+        return {v["version"]: v["first_seen"] for v in prev if v.get("first_seen")}
+    except Exception:
+        return {}
+
+
+def rss_date(iso: str) -> str:
+    """YYYY-MM-DD -> RFC 822 date (RSS pubDate), at 00:00:00 GMT."""
+    d = datetime.date.fromisoformat(iso)
+    dt = datetime.datetime(d.year, d.month, d.day, tzinfo=datetime.timezone.utc)
+    return dt.strftime("%a, %d %b %Y %H:%M:%S +0000")
+
+
+def build_feed(versions: list) -> str:
+    """One <item> per version, newest first, pubDate = first_seen date."""
+    def esc(s):
+        return _html.escape(s, quote=True)
+
+    items = []
+    for v in versions:
+        bullets = [n for n in v["notes"] if not n.startswith("### ")]
+        # readable plain-text description
+        desc = "\n".join(("• " + n) if not n.startswith("### ") else ("\n" + n[4:] + ":")
+                         for n in v["notes"]).strip()
+        link = SITE_URL + "#" + esc(v["version"].replace(".", "-"))
+        items.append(
+            "    <item>\n"
+            f"      <title>Polestar 2 software {esc(v['version'])}</title>\n"
+            f"      <link>{link}</link>\n"
+            f"      <guid isPermaLink=\"false\">polestar2-{esc(v['version'])}</guid>\n"
+            f"      <pubDate>{rss_date(v['first_seen'])}</pubDate>\n"
+            f"      <description>{esc(desc)}</description>\n"
+            "    </item>"
+        )
+    now = datetime.datetime.now(datetime.timezone.utc).strftime("%a, %d %b %Y %H:%M:%S +0000")
+    return (
+        '<?xml version="1.0" encoding="UTF-8"?>\n'
+        '<rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom">\n'
+        "  <channel>\n"
+        "    <title>Polestar 2 Software Updates (Unofficial)</title>\n"
+        f"    <link>{SITE_URL}</link>\n"
+        f'    <atom:link href="{FEED_URL}" rel="self" type="application/rss+xml"/>\n'
+        "    <description>New Polestar 2 software versions and their release notes, "
+        "sourced from Polestar's owner's manual. Unofficial.</description>\n"
+        "    <language>en-GB</language>\n"
+        f"    <lastBuildDate>{now}</lastBuildDate>\n"
+        + "\n".join(items) + "\n"
+        "  </channel>\n"
+        "</rss>\n"
+    )
+
+
 def main():
     if len(sys.argv) > 1 and sys.argv[1] == "--local":
         page = pathlib.Path(sys.argv[2]).read_text(encoding="utf-8", errors="replace")
@@ -147,25 +215,30 @@ def main():
     if not versions:
         raise SystemExit("parsed zero versions — aborting so we don't wipe good data")
 
+    # Sort newest-first and attach a stable first-seen date per version.
+    versions.sort(key=lambda v: version_key(v["version"]), reverse=True)
+    seen = load_first_seen()
+    today = datetime.date.today().isoformat()
+    for v in versions:
+        v["first_seen"] = seen.get(v["version"], today)
+
     out_json = json.dumps(versions, ensure_ascii=False)
-    # write a sidecar data file for transparency / debugging
-    (ROOT / "data.json").write_text(json.dumps(versions, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    DATA.write_text(json.dumps(versions, ensure_ascii=False, indent=1) + "\n", encoding="utf-8")
+    FEED.write_text(build_feed(versions), encoding="utf-8")
 
     index = INDEX.read_text(encoding="utf-8")
     new_index, n = re.subn(r"const DATA = .*?;\n", "const DATA = " + out_json + ";\n", index, count=1, flags=re.S)
     if n != 1:
         raise SystemExit("could not locate 'const DATA = ...;' in index.html")
     # bump the captured date shown in the footer/script
-    import datetime
-    today = datetime.date.today().isoformat()
     new_index = re.sub(r'const SCRAPED = "[^"]*";', f'const SCRAPED = "{today}";', new_index)
     new_index = re.sub(r'Data captured [0-9]{4}-[0-9]{2}-[0-9]{2}', f'Data captured {today}', new_index)
 
-    if new_index != index:
+    changed = new_index != index
+    if changed:
         INDEX.write_text(new_index, encoding="utf-8")
-        print(f"updated index.html — {len(versions)} versions, latest {versions[0]['version']}")
-    else:
-        print(f"no change — {len(versions)} versions, latest {versions[0]['version']}")
+    verb = "updated" if changed else "no index change"
+    print(f"{verb} — {len(versions)} versions, latest {versions[0]['version']}; wrote data.json + feed.xml")
 
 
 if __name__ == "__main__":

@@ -12,6 +12,16 @@ official release notes, styled after the
 - The full release history, newest first, each version expandable to its
   official release notes (model-year sub-sections preserved).
 - Live search across versions and notes, plus expand/collapse-all.
+- An **RSS feed** (`feed.xml`) with one item per version.
+
+## RSS feed
+
+`feed.xml` is linked from the page footer and its `<head>`. Since Polestar
+doesn't publish release dates for Polestar 2, each item's `pubDate` is the date
+the scraper **first observed** that version — persisted per version in
+`data.json` (`first_seen`) so dates stay stable across runs. All versions that
+existed when the feed was first generated share that initial date; anything
+released afterwards gets a genuine first-seen date when it appears.
 
 ## Source & the "no dates" caveat
 

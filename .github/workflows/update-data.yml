@@ -34,7 +34,7 @@ jobs:
           fi
           git config user.name  "github-actions[bot]"
           git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-          git add index.html data.json
+          git add index.html data.json feed.xml
           latest=$(python3 -c "import json;print(json.load(open('data.json'))[0]['version'])")
           git commit -m "chore: update Polestar 2 software data (latest ${latest})"
           git push
